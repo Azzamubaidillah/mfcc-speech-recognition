@@ -26,6 +26,7 @@ def prepare_dataset(dataset_path, json_path, n_mfcc=13, hop_length=512, n_fft=20
             # update mappings
             category = dirpath.split("/")[-1] # dataset/down -> [dataset, down]
             data["mappings"].append(category)
+            print(f"processings {category}")
 
             # loop through all the filenames and extract MFCCs
             for f in filenames:
@@ -49,3 +50,8 @@ def prepare_dataset(dataset_path, json_path, n_mfcc=13, hop_length=512, n_fft=20
                     data["labels"].append(i-1)
                     data["MFCCs"].append(MFCCs.T.tolist())
                     data["files"].append(file_path)
+                    print(f"{file_path}:{i-1}")
+
+    # store in json file
+    with open(json_path, "w") as fp:
+        json.dump(data, fp, indent=4)
