@@ -6,6 +6,7 @@ DATASET_PATH = "dataset"
 JSON_PATH = "data.json"
 SAMPLES_TO_CONSIDER = 22050 # 1 sec worth of sound
 
+
 def prepare_dataset(dataset_path, json_path, n_mfcc=13, hop_length=512, n_fft=2048):
 
     # data dictionary
@@ -37,4 +38,14 @@ def prepare_dataset(dataset_path, json_path, n_mfcc=13, hop_length=512, n_fft=20
 
                 # ensure the audio file is at least 1 sec
                 if len(signal) >= SAMPLES_TO_CONSIDER:
-                    pass
+
+                    # enforce 1 sec long signal
+                    signal = signal[:SAMPLES_TO_CONSIDER]
+
+                    # extract the MFCCs
+                    MFCCs = librosa.feature.mfcc(signal, n_mfcc=n_mfcc, hop_length=hop_length, n_fft=n_fft)
+
+                    # store data
+                    data["labels"].append(i-1)
+                    data["MFCCs"].append(MFCCs.T.tolist())
+                    data["files"].append(file_path)
