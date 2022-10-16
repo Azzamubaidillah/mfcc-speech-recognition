@@ -1,7 +1,9 @@
 import keras.models
+import librosa
 import numpy as np
 
 MODEL_PATH = "model.h5"
+NUM_SAMPLES_TO_CONSIDER = 22050 # 1 sec
 
 class _Keyword_Spotting_Service:
 
@@ -18,7 +20,7 @@ class _Keyword_Spotting_Service:
         "down"
     ]
 
-    _istance = None
+    _instance = None
 
     def predict(self, file_path):
 
@@ -36,9 +38,19 @@ class _Keyword_Spotting_Service:
 
         return predicted_keyword
 
-    def preprocess(self, file_path):
-        pass
+    def preprocess(self, file_path, n_mfcc=13, n_fft=2048, hop_length=512):
 
+        # load audio file
+        signal, sr =librosa.load(file_path)
+
+        # ensure consistency in the audio file length
+        if len(signal) > NUM_SAMPLES_TO_CONSIDER:
+            signal = signal[:NUM_SAMPLES_TO_CONSIDER]
+
+        # extract MFCCS
+        MFCCs = librosa.feature.mfcc(signal, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+
+        return MFCCs.T
 
 def Keyword_Spotting_Service():
 
@@ -48,3 +60,8 @@ def Keyword_Spotting_Service():
         _Keyword_Spotting_Service._model = keras.models.load_model(MODEL_PATH)
     return _Keyword_Spotting_Service._instance
 
+if __name__ == "__main__":
+
+    kss = Keyword_Spotting_Service()
+
+    kss.predict("")
